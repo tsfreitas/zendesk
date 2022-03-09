@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'zendesk
+
+  Zendesk integration lambda
+
+  '
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 128
+    Architectures:
+    - x86_64
+Resources:
+  ZendeskIntegrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Tracing: Active
+      Events:
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue:
+              Fn::Sub: arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:lambda-queue
+            BatchSize: 1
+      ImageUri: zendeskintegrationfunction:local
+    Metadata:
+      DockerContext: ./
+      DockerTag: local
+      Dockerfile: build/Dockerfile
+      SamResourceId: ZendeskIntegrationFunction
+Outputs:
+  ZendeskIntegrationFunction:
+    Description: Zendesk integration lambda
+    Value:
+      Fn::GetAtt:
+      - ZendeskIntegrationFunction
+      - Arn
